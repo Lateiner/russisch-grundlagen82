@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Russisch-Assistent: Possessiv-Adjektive Üben</title>
+    
+    <!-- Polyfill für Drag-and-Drop auf Touch-Geräten (falls später erweitert wird) -->
+    <script src="https://cdn.jsdelivr.net/npm/drag-drop-touch@1.3.1/DragDropTouch.js"></script>
+
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #28a745;
+            --error-color: #dc3545;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --text-main: #333;
+            --border-val: #dcdde1;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            margin: 0;
+            padding: 10px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+        }
+
+        h1, h2 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .intro-box {
+            background: #eef2f7;
+            padding: 20px;
+            border-left: 6px solid var(--secondary-color);
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+
+        .grammar-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            background: white;
+            font-size: 0.95em;
+        }
+
+        .grammar-table th, .grammar-table td {
+            border: 1px solid var(--border-val);
+            padding: 10px;
+            text-align: left;
+        }
+
+        .grammar-table th {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .exercise-grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .task-card {
+            background: #fff;
+            border: 1px solid var(--border-val);
+            border-radius: 10px;
+            padding: 20px;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .task-card:hover {
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        .task-header {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+
+        /* Multiple Choice Styling */
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option-label {
+            display: block;
+            padding: 12px 15px;
+            border: 2px solid var(--border-val);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            background: #fff;
+        }
+
+        .option-label:hover {
+            border-color: var(--secondary-color);
+            background-color: #f8fbff;
+        }
+
+        input[type="radio"] {
+            display: none;
+        }
+
+        /* Feedback-Farben direkt im Feld */
+        .option-label.correct {
+            background-color: #d4edda !important;
+            border-color: var(--success-color) !important;
+            color: #155724 !important;
+            font-weight: bold;
+        }
+
+        .option-label.incorrect {
+            background-color: #f8d7da !important;
+            border-color: var(--error-color) !important;
+            color: #721c24 !important;
+        }
+
+        .btn-group {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9em;
+            transition: opacity 0.2s;
+        }
+
+        .btn-reset { background-color: #95a5a6; color: white; }
+        .btn-solution { background-color: var(--secondary-color); color: white; }
+        button:hover { opacity: 0.85; }
+
+        @media (max-width: 600px) {
+            .container { padding: 15px; }
+            h1 { font-size: 1.5em; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Russische Grammatik</h1>
+    <h2>Deklination possessiver Adjektive</h2>
+    
+    <div class="intro-box">
+        <p>Possessiv-Adjektive wie <strong>собачий</strong> (Hunde-), <strong>лисий</strong> (Fuchs-) oder <strong>птичий</strong> (Vogel-) zeigen die Zugehörigkeit an. Das Weichheitszeichen <strong>Ь</strong> ist entscheidend und steht in fast allen Formen vor der Endung.</p>
+        <table class="grammar-table">
+            <tr>
+                <th>Fall</th>
+                <th>Maskulin</th>
+                <th>Feminin</th>
+                <th>Neutrum</th>
+                <th>Plural</th>
+            </tr>
+            <tr>
+                <td>Nom.</td>
+                <td>собачий</td>
+                <td>собачья</td>
+                <td>собачье</td>
+                <td>собачьи</td>
+            </tr>
+            <tr>
+                <td>Gen.</td>
+                <td>собачьего</td>
+                <td>собачьей</td>
+                <td>собачьего</td>
+                <td>собачьих</td>
+            </tr>
+        </table>
+        <p><small>* Das Ь fehlt nur im Nominativ Maskulin Singular!</small></p>
+    </div>
+
+    <div id="quiz-container" class="exercise-grid">
+        <!-- Aufgaben werden hier durch JavaScript geladen -->
+    </div>
+</div>
+
+<script>
+const quizData = [
+    { id: 1, q: "Das ist ein Hundeschwanz: „Это собач___ хвост.“", options: ["ий", "ья", "ье", "ьи"], a: "ий" },
+    { id: 2, q: "Das ist eine Fuchshöhle: „Это лись___ нора.“", options: ["ий", "ья", "ье", "ьи"], a: "ья" },
+    { id: 3, q: "Ich sehe das Vogelnest: „Я вижу птичь___ гнездо.“", options: ["ий", "ья", "ье", "ьи"], a: "ье" },
+    { id: 4, q: "Das sind Bärenspuren: „Это медвежь___ следы.“", options: ["ий", "ья", "ье", "ьи"], a: "ьи" },
+    { id: 5, q: "Genitiv Maskulin: „У собачь___ дома.“", options: ["его", "ему", "им", "их"], a: "его" },
+    { id: 6, q: "Dativ Feminin: „Я иду к лись___ норе.“", options: ["ей", "ью", "ья", "их"], a: "ей" },
+    { id: 7, q: "Instrumental Maskulin: „Рядом с кошачь___ кормом.“", options: ["им", "ем", "его", "их"], a: "им" },
+    { id: 8, q: "Präpositiv Neutrum: „В птичь___ гнезде.“", options: ["ем", "им", "ей", "их"], a: "ем" },
+    { id: 9, q: "Genitiv Plural: „Здесь нет волчь___ следов.“", options: ["их", "им", "и", "ьего"], a: "их" },
+    { id: 10, q: "Akkusativ Feminin: „Он ищет рыбь___ голову.“", options: ["ья", "ью", "ье", "ьи"], a: "ью" },
+    { id: 11, q: "Nominativ Neutrum: „Медвежь___ ухо.“", options: ["ий", "ья", "ье", "ьи"], a: "ье" },
+    { id: 12, q: "Dativ Plural: „Дать еду собачь___ щенкам.“", options: ["им", "их", "его", "ем"], a: "им" },
+    { id: 13, q: "Genitiv Feminin: „Около птичь___ кормушки.“", options: ["ей", "ья", "ью", "их"], a: "ей" },
+    { id: 14, q: "Akkusativ Maskulin (unbelebt): „Я купил собач___ ошейник.“", options: ["ий", "ьего", "ьему", "ья"], a: "ий" },
+    { id: 15, q: "Akkusativ Maskulin (belebt!): „Я встретил собачь___ хозяина.“", options: ["ий", "его", "им", "ему"], a: "его" },
+    { id: 16, q: "Präpositiv Plural: „О лись___ хитростях.“", options: ["их", "им", "ими", "и"], a: "их" },
+    { id: 17, q: "Instrumental Plural: „С медвежь___ когтями.“", options: ["ими", "их", "им", "и"], a: "ими" },
+    { id: 18, q: "Nominativ Plural: „Кошачь___ глаза.“", options: ["ий", "ья", "ье", "ьи"], a: "ьи" },
+    { id: 19, q: "Dativ Maskulin: „К волчь___ логову.“", options: ["ему", "его", "им", "их"], a: "ему" },
+    { id: 20, q: "Instrumental Feminin: „С кошачь___ грацией.“", options: ["ей", "ью", "ья", "ем"], a: "ей" }
+];
+
+const container = document.getElementById('quiz-container');
+
+function initQuiz() {
+    quizData.forEach((task) => {
+        const card = document.createElement('div');
+        card.className = 'task-card';
+        card.id = `task-${task.id}`;
+
+        const header = document.createElement('span');
+        header.className = 'task-header';
+        header.innerText = `${task.id}. ${task.q}`;
+        card.appendChild(header);
+
+        const optionsDiv = document.createElement('div');
+        optionsDiv.className = 'options-container';
+
+        task.options.forEach((opt) => {
+            const label = document.createElement('label');
+            label.className = 'option-label';
+            label.id = `label-${task.id}-${opt}`;
+            
+            const radio = document.createElement('input');
+            radio.type = 'radio';
+            radio.name = `q${task.id}`;
+            radio.value = opt;
+            radio.onchange = () => handleChoice(task.id, opt);
+
+            label.appendChild(radio);
+            label.appendChild(document.createTextNode(opt));
+            optionsDiv.appendChild(label);
+        });
+
+        card.appendChild(optionsDiv);
+
+        const btnGroup = document.createElement('div');
+        btnGroup.className = 'btn-group';
+        
+        const resetBtn = document.createElement('button');
+        resetBtn.className = 'btn-reset';
+        resetBtn.innerText = 'Zurücksetzen';
+        resetBtn.onclick = () => resetTask(task.id);
+        
+        const solBtn = document.createElement('button');
+        solBtn.className = 'btn-solution';
+        solBtn.innerText = 'Lösung anzeigen';
+        solBtn.onclick = () => showSolution(task.id);
+
+        btnGroup.appendChild(resetBtn);
+        btnGroup.appendChild(solBtn);
+        card.appendChild(btnGroup);
+
+        container.appendChild(card);
+    });
+}
+
+function handleChoice(taskId, chosenOpt) {
+    const task = quizData.find(t => t.id === taskId);
+    const labels = document.querySelectorAll(`#task-${taskId} .option-label`);
+    
+    // Feedback zurücksetzen
+    labels.forEach(l => l.classList.remove('correct', 'incorrect'));
+
+    const activeLabel = document.getElementById(`label-${taskId}-${chosenOpt}`);
+    
+    if (chosenOpt === task.a) {
+        activeLabel.classList.add('correct');
+    } else {
+        activeLabel.classList.add('incorrect');
+    }
+}
+
+function resetTask(taskId) {
+    const labels = document.querySelectorAll(`#task-${taskId} .option-label`);
+    labels.forEach(l => l.classList.remove('correct', 'incorrect'));
+    const radios = document.querySelectorAll(`#task-${taskId} input`);
+    radios.forEach(r => r.checked = false);
+}
+
+function showSolution(taskId) {
+    const task = quizData.find(t => t.id === taskId);
+    resetTask(taskId);
+    
+    const correctLabel = document.getElementById(`label-${taskId}-${task.a}`);
+    correctLabel.classList.add('correct');
+    
+    const radio = correctLabel.querySelector('input');
+    radio.checked = true;
+}
+
+// Initialisierung
+initQuiz();
+</script>
+
+</body>
+</html>
