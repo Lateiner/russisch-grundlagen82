@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kategorisierung: Russische Possessiv-Adjektive</title>
+    
+    <!-- Polyfill für Drag-and-Drop auf Mobilgeräten -->
+    <script src="https://cdn.jsdelivr.net/npm/drag-drop-touch@1.3.1/DragDropTouch.js"></script>
+
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #27ae60;
+            --error-color: #e74c3c;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: #333;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        h1, h2 { color: var(--primary-color); text-align: center; }
+
+        .intro {
+            background: #eef6fc;
+            padding: 20px;
+            border-left: 6px solid var(--secondary-color);
+            border-radius: 6px;
+            margin-bottom: 30px;
+        }
+
+        /* Drag and Drop Area */
+        .task-section {
+            margin-bottom: 40px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+        }
+
+        .item-pool {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            min-height: 80px;
+            padding: 15px;
+            background: #f9f9f9;
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .draggable {
+            padding: 10px 15px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 5px;
+            cursor: grab;
+            user-select: none;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .draggable.dragging { opacity: 0.5; }
+
+        .bucket-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .bucket {
+            background: #fff;
+            border: 2px solid var(--secondary-color);
+            border-radius: 10px;
+            min-height: 150px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            transition: background 0.3s;
+        }
+
+        .bucket-title {
+            text-align: center;
+            font-weight: bold;
+            color: var(--secondary-color);
+            border-bottom: 1px solid #eee;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+        }
+
+        .bucket.drag-over {
+            background: #e3f2fd;
+        }
+
+        /* Feedback Colors */
+        .correct { background-color: var(--success-color) !important; }
+        .incorrect { background-color: var(--error-color) !important; }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: opacity 0.2s;
+        }
+
+        .btn-reset { background-color: #95a5a6; color: white; }
+        .btn-solution { background-color: var(--secondary-color); color: white; }
+
+        @media (max-width: 600px) {
+            .bucket-container { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Russisch-Assistent</h1>
+    <h2>Kategorisierung: Possessiv-Adjektive</h2>
+
+    <div class="intro">
+        <p>Sortieren Sie die Wortformen in die richtigen Körbe. Achten Sie auf die Endungen und das Weichheitszeichen <strong>Ь</strong>!</p>
+    </div>
+
+    <!-- Übung 1: Geschlecht im Nominativ -->
+    <div class="task-section" id="task-1">
+        <span class="task-title"><strong>Teil 1:</strong> Sortieren Sie nach Geschlecht (Nominativ)</span>
+        <div class="item-pool" id="pool-1">
+            <div class="draggable" draggable="true" data-answer="mask">собачий</div>
+            <div class="draggable" draggable="true" data-answer="fem">лисья</div>
+            <div class="draggable" draggable="true" data-answer="neut">медвежье</div>
+            <div class="draggable" draggable="true" data-answer="mask">кошачий</div>
+            <div class="draggable" draggable="true" data-answer="fem">птичья</div>
+            <div class="draggable" draggable="true" data-answer="neut">рыбье</div>
+            <div class="draggable" draggable="true" data-answer="mask">волчий</div>
+            <div class="draggable" draggable="true" data-answer="fem">собачья</div>
+        </div>
+        <div class="bucket-container">
+            <div class="bucket" id="mask" data-accept="mask"><div class="bucket-title">Maskulin (-ИЙ)</div></div>
+            <div class="bucket" id="fem" data-accept="fem"><div class="bucket-title">Feminin (-ЬЯ)</div></div>
+            <div class="bucket" id="neut" data-accept="neut"><div class="bucket-title">Neutrum (-ЬЕ)</div></div>
+        </div>
+        <div class="btn-group">
+            <button class="btn-reset" onclick="resetTask(1)">Zurücksetzen</button>
+            <button class="btn-solution" onclick="solveTask(1)">Lösung anzeigen</button>
+        </div>
+    </div>
+
+    <!-- Übung 2: Fälle (Maskulin/Neutrum) -->
+    <div class="task-section" id="task-2">
+        <span class="task-title"><strong>Teil 2:</strong> Fälle sortieren (Maskulin & Neutrum)</span>
+        <div class="item-pool" id="pool-2">
+            <div class="draggable" draggable="true" data-answer="gen">лисьего</div>
+            <div class="draggable" draggable="true" data-answer="dat">лисьему</div>
+            <div class="draggable" draggable="true" data-answer="inst">лисьим</div>
+            <div class="draggable" draggable="true" data-answer="prep">лисьем</div>
+            <div class="draggable" draggable="true" data-answer="gen">собачьего</div>
+            <div class="draggable" draggable="true" data-answer="dat">собачьему</div>
+        </div>
+        <div class="bucket-container">
+            <div class="bucket" id="gen" data-accept="gen"><div class="bucket-title">Genitiv (-ЬЕГО)</div></div>
+            <div class="bucket" id="dat" data-accept="dat"><div class="bucket-title">Dativ (-ЬЕМУ)</div></div>
+            <div class="bucket" id="instprep" data-accept="inst,prep"><div class="bucket-title">Inst./Präp. (-ЬИМ / -ЬЕМ)</div></div>
+        </div>
+        <div class="btn-group">
+            <button class="btn-reset" onclick="resetTask(2)">Zurücksetzen</button>
+            <button class="btn-solution" onclick="solveTask(2)">Lösung anzeigen</button>
+        </div>
+    </div>
+
+    <!-- Übung 3: Fälle (Feminin) -->
+    <div class="task-section" id="task-3">
+        <span class="task-title"><strong>Teil 3:</strong> Fälle sortieren (Feminin)</span>
+        <div class="item-pool" id="pool-3">
+            <div class="draggable" draggable="true" data-answer="acc-f">собачью</div>
+            <div class="draggable" draggable="true" data-answer="other-f">собачьей</div>
+            <div class="draggable" draggable="true" data-answer="acc-f">лисью</div>
+            <div class="draggable" draggable="true" data-answer="other-f">лисьей</div>
+            <div class="draggable" draggable="true" data-answer="acc-f">волчью</div>
+            <div class="draggable" draggable="true" data-answer="other-f">волчьей</div>
+        </div>
+        <div class="bucket-container">
+            <div class="bucket" id="acc-f" data-accept="acc-f"><div class="bucket-title">Akkusativ (-ЬЮ)</div></div>
+            <div class="bucket" id="other-f" data-accept="other-f"><div class="bucket-title">Gen/Dat/Inst/Präp (-ЬЕЙ)</div></div>
+        </div>
+        <div class="btn-group">
+            <button class="btn-reset" onclick="resetTask(3)">Zurücksetzen</button>
+            <button class="btn-solution" onclick="solveTask(3)">Lösung anzeigen</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let draggedItem = null;
+
+    // Drag-Events initialisieren
+    document.addEventListener('dragstart', (e) => {
+        if (e.target.classList.contains('draggable')) {
+            draggedItem = e.target;
+            e.target.classList.add('dragging');
+        }
+    });
+
+    document.addEventListener('dragend', (e) => {
+        if (e.target.classList.contains('draggable')) {
+            e.target.classList.remove('dragging');
+            draggedItem = null;
+        }
+    });
+
+    document.querySelectorAll('.bucket').forEach(bucket => {
+        bucket.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            bucket.classList.add('drag-over');
+        });
+
+        bucket.addEventListener('dragleave', () => {
+            bucket.classList.remove('drag-over');
+        });
+
+        bucket.addEventListener('drop', (e) => {
+            e.preventDefault();
+            bucket.classList.remove('drag-over');
+            if (draggedItem) {
+                bucket.appendChild(draggedItem);
+                validateItem(draggedItem, bucket);
+            }
+        });
+    });
+
+    // Validierung (Direktes Feedback)
+    function validateItem(item, bucket) {
+        const allowedAnswers = bucket.getAttribute('data-accept').split(',');
+        const itemAnswer = item.getAttribute('data-answer');
+
+        if (allowedAnswers.includes(itemAnswer)) {
+            item.classList.add('correct');
+            item.classList.remove('incorrect');
+        } else {
+            item.classList.add('incorrect');
+            item.classList.remove('correct');
+        }
+    }
+
+    // Zurücksetzen
+    window.resetTask = function(taskNum) {
+        const section = document.getElementById(`task-${taskNum}`);
+        const pool = document.getElementById(`pool-${taskNum}`);
+        const items = section.querySelectorAll('.draggable');
+        items.forEach(item => {
+            item.classList.remove('correct', 'incorrect');
+            pool.appendChild(item);
+        });
+    };
+
+    // Lösung anzeigen
+    window.solveTask = function(taskNum) {
+        const section = document.getElementById(`task-${taskNum}`);
+        const items = section.querySelectorAll('.draggable');
+        const buckets = section.querySelectorAll('.bucket');
+
+        items.forEach(item => {
+            const ans = item.getAttribute('data-answer');
+            buckets.forEach(bucket => {
+                const allowed = bucket.getAttribute('data-accept').split(',');
+                if (allowed.includes(ans)) {
+                    bucket.appendChild(item);
+                    item.classList.add('correct');
+                    item.classList.remove('incorrect');
+                }
+            });
+        });
+    };
+</script>
+
+</body>
+</html>
