@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interaktive Übung: Russische Possessiv-Adjektive</title>
+    
+    <!-- DragDropTouch Polyfill für mobile Geräte -->
+    <script src="https://cdn.jsdelivr.net/npm/drag-drop-touch@1.3.1/DragDropTouch.js"></script>
+
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-bg: #d4edda;
+            --success-text: #155724;
+            --error-bg: #f8d7da;
+            --error-text: #721c24;
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --border-color: #ced4da;
+        }
+
+        body {
+            font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: #333;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        h1, h2 { color: var(--primary-color); text-align: center; margin-bottom: 10px; }
+        
+        .intro {
+            background: #e9ecef;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border-left: 6px solid var(--secondary-color);
+        }
+
+        .grammar-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            background: white;
+            font-size: 0.95em;
+        }
+
+        .grammar-table th, .grammar-table td {
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            text-align: left;
+        }
+
+        .grammar-table th { background: var(--secondary-color); color: white; }
+
+        .task-card {
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 25px;
+            background: #fff;
+        }
+
+        .task-title {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+
+        /* Feedback Styles */
+        .state-correct { background-color: var(--success-bg) !important; color: var(--success-text) !important; border-color: var(--success-text) !important; }
+        .state-incorrect { background-color: var(--error-bg) !important; color: var(--error-text) !important; border-color: var(--error-text) !important; }
+
+        .radio-option { display: block; padding: 5px 10px; border-radius: 4px; margin-bottom: 5px; transition: 0.3s; }
+        .radio-option.correct { background-color: var(--success-bg); color: var(--success-text); font-weight: bold; }
+        .radio-option.incorrect { background-color: var(--error-bg); color: var(--error-text); }
+
+        /* Input Elements */
+        select {
+            padding: 10px;
+            border-radius: 5px;
+            border: 2px solid var(--border-color);
+            width: 100%;
+            max-width: 350px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        /* Drag and Drop */
+        .drag-box { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        .draggable {
+            padding: 8px 15px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 4px;
+            cursor: grab;
+            font-size: 0.9em;
+        }
+        .dropzone {
+            display: inline-block;
+            min-width: 130px;
+            height: 32px;
+            border: 2px dashed var(--secondary-color);
+            border-radius: 4px;
+            text-align: center;
+            vertical-align: middle;
+            margin: 0 5px;
+            padding: 2px 5px;
+            background: #fff;
+        }
+
+        /* Buttons */
+        .btn-group { margin-top: 15px; display: flex; gap: 10px; }
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85em;
+            transition: 0.2s;
+        }
+        .btn-reset { background: #adb5bd; color: white; }
+        .btn-solution { background: var(--secondary-color); color: white; }
+        button:hover { opacity: 0.85; }
+
+        @media (max-width: 600px) {
+            .container { padding: 15px; }
+            .btn-group { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Russische Grammatik</h1>
+    <h2>Deklination possessiver Adjektive auf -ИЙ, -ЬЯ, -ЬЕ, -ЬИ</h2>
+
+    <div class="intro">
+        <p>Diese Adjektive beziehen sich meist auf Tiere (z. B. <strong>собачий</strong> – Hunde-) oder Personen. Merke: Das Weichheitszeichen <strong>Ь</strong> erscheint in fast allen Formen, außer im Nominativ Maskulin Singular.</p>
+        <table class="grammar-table">
+            <tr>
+                <th>Fall</th>
+                <th>Mask.</th>
+                <th>Fem.</th>
+                <th>Neut.</th>
+                <th>Plural</th>
+            </tr>
+            <tr>
+                <td>Nom.</td>
+                <td>собачий</td>
+                <td>собачья</td>
+                <td>собачье</td>
+                <td>собачьи</td>
+            </tr>
+            <tr>
+                <td>Gen.</td>
+                <td>собачьего</td>
+                <td>собачьей</td>
+                <td>собачьего</td>
+                <td>собачьих</td>
+            </tr>
+        </table>
+    </div>
+
+    <div id="exercise-list"></div>
+</div>
+
+<script>
+const exercises = [
+    { id: 1, type: 'select', q: 'Das ist eine Hundehuette: „Это собач___ будка.“', options: ['ий', 'ья', 'ье', 'ьи'], answer: 'ья' },
+    { id: 2, type: 'radio', q: 'In welchem Fall steht „лисьего“ in „Я не вижу лисьего хвоста“?', options: ['Nominativ', 'Genitiv', 'Instrumental'], answer: 'Genitiv' },
+    { id: 3, type: 'select', q: 'Dativ Feminin: „Мы подошли к медвежь___ берлоге.“', options: ['ей', 'ему', 'их'], answer: 'ей' },
+    { id: 4, type: 'drag', q: 'Ordne zu: Maskulin - [?], Feminin - [?]', zones: [{a: 'волчий'}, {a: 'волчья'}], words: ['волчья', 'волчий'] },
+    { id: 5, type: 'select', q: 'Plural (Akkusativ unbelebt): „Я вижу кошачь___ следы.“', options: ['и', 'их', 'ья'], answer: 'и' },
+    { id: 6, type: 'radio', q: 'Besitzt die Form „собачий“ (Nom. Mask. Sing.) ein Weichheitszeichen (Ь)?', options: ['Ja', 'Nein'], answer: 'Nein' },
+    { id: 7, type: 'select', q: 'Neutrum (Präpositiv): „О птичь___ гнезде.“', options: ['ем', 'им', 'его'], answer: 'ем' },
+    { id: 8, type: 'select', q: 'Instrumental Maskulin: „Рядом с собачь___ домом.“', options: ['им', 'ем', 'ей'], answer: 'им' },
+    { id: 9, type: 'select', q: 'Genitiv Plural: „Здесь нет медвежь___ следов.“', options: ['их', 'ьи', 'ьих'], answer: 'их' },
+    { id: 10, type: 'select', q: 'Akkusativ Maskulin (belebt): „Я вижу собачь___ друга.“', options: ['его', 'ий', 'ему'], answer: 'его' },
+    { id: 11, type: 'select', q: 'Nominativ Neutrum: „Кошачь___ лакомство.“', options: ['ье', 'ья', 'ьи'], answer: 'ье' },
+    { id: 12, type: 'select', q: 'Dativ Plural: „Помочь птичь___ птенцам.“', options: ['им', 'их', 'ьи'], answer: 'им' },
+    { id: 13, type: 'select', q: 'Genitiv Feminin: „У этой рыбь___ головы.“', options: ['ей', 'ьи', 'ью'], answer: 'ей' },
+    { id: 14, type: 'select', q: 'Akkusativ Feminin: „Я ищу лись___ нору.“', options: ['ью', 'ья', 'ьей'], answer: 'ью' },
+    { id: 15, type: 'radio', q: 'Welche Form ist Plural Nominativ?', options: ['собачьи', 'собачья', 'собачье'], answer: 'собачьи' },
+    { id: 16, type: 'drag', q: 'Instrumental bilden: Mask. - [?], Fem. - [?]', zones: [{a: 'волчьим'}, {a: 'волчьей'}], words: ['волчьей', 'волчьим'] },
+    { id: 17, type: 'select', q: 'Präpositiv Feminin: „В медвежь___ берлоге.“', options: ['ей', 'ью', 'ья'], answer: 'ей' },
+    { id: 18, type: 'select', q: 'Akkusativ Plural (belebt): „Я вижу собачь___ друзей.“', options: ['их', 'и', 'им'], answer: 'их' },
+    { id: 19, type: 'radio', q: 'Existiert die Form „лисью“?', options: ['Ja, Akkusativ Feminin', 'Nein'], answer: 'Ja, Akkusativ Feminin' },
+    { id: 20, type: 'select', q: 'Dativ Maskulin: „К собачь___ хозяину.“', options: ['ему', 'его', 'им'], answer: 'ему' }
+];
+
+const list = document.getElementById('exercise-list');
+
+function render() {
+    exercises.forEach(ex => {
+        const div = document.createElement('div');
+        div.className = 'task-card';
+        div.id = `ex-${ex.id}`;
+
+        let inputHtml = '';
+        if (ex.type === 'select') {
+            inputHtml = `<select onchange="checkSel(${ex.id}, this)">
+                <option value="">-- wählen --</option>
+                ${ex.options.map(o => `<option value="${o}">${o}</option>`).join('')}
+            </select>`;
+        } else if (ex.type === 'radio') {
+            inputHtml = ex.options.map(o => `
+                <label class="radio-option" id="label-${ex.id}-${o}">
+                    <input type="radio" name="r-${ex.id}" value="${o}" onchange="checkRad(${ex.id}, this)"> ${o}
+                </label>
+            `).join('');
+        } else if (ex.type === 'drag') {
+            inputHtml = `<div class="drag-box">
+                ${ex.words.map((w, i) => `<div class="draggable" draggable="true" id="d-${ex.id}-${i}" ondragstart="drag(event)">${w}</div>`).join('')}
+            </div>
+            ${ex.q.split('[?]')[0]} <span class="dropzone" id="dz-${ex.id}-0" ondrop="drop(event, ${ex.id}, 0)" ondragover="allow(event)"></span> 
+            ${ex.q.split('[?]')[1]} <span class="dropzone" id="dz-${ex.id}-1" ondrop="drop(event, ${ex.id}, 1)" ondragover="allow(event)"></span>`;
+        }
+
+        div.innerHTML = `
+            <span class="task-title">${ex.type === 'drag' ? 'Vervollständige den Satz:' : ex.q}</span>
+            ${ex.type === 'drag' ? inputHtml : inputHtml}
+            <div class="btn-group">
+                <button class="btn-reset" onclick="reset(${ex.id})">Zurücksetzen</button>
+                <button class="btn-solution" onclick="solve(${ex.id})">Lösung anzeigen</button>
+            </div>
+        `;
+        list.appendChild(div);
+    });
+}
+
+// Logic
+function checkSel(id, el) {
+    const ans = exercises.find(e => e.id === id).answer;
+    el.className = el.value === ans ? 'state-correct' : 'state-incorrect';
+}
+
+function checkRad(id, el) {
+    const ex = exercises.find(e => e.id === id);
+    ex.options.forEach(o => {
+        const label = document.getElementById(`label-${id}-${o}`);
+        label.className = 'radio-option';
+        if (o === el.value) {
+            label.classList.add(el.value === ex.answer ? 'correct' : 'incorrect');
+        }
+    });
+}
+
+function allow(ev) { ev.preventDefault(); }
+function drag(ev) { ev.dataTransfer.setData("text", ev.target.innerText); }
+function drop(ev, id, zoneIdx) {
+    ev.preventDefault();
+    const data = ev.dataTransfer.getData("text");
+    ev.target.innerText = data;
+    const correct = exercises.find(e => e.id === id).zones[zoneIdx].a;
+    ev.target.className = 'dropzone ' + (data === correct ? 'state-correct' : 'state-incorrect');
+}
+
+function reset(id) {
+    const ex = exercises.find(e => e.id === id);
+    const container = document.getElementById(`ex-${id}`);
+    if (ex.type === 'select') {
+        const s = container.querySelector('select');
+        s.value = ''; s.className = '';
+    } else if (ex.type === 'radio') {
+        container.querySelectorAll('input').forEach(i => i.checked = false);
+        container.querySelectorAll('.radio-option').forEach(l => l.className = 'radio-option');
+    } else if (ex.type === 'drag') {
+        container.querySelectorAll('.dropzone').forEach(z => { z.innerText = ''; z.className = 'dropzone'; });
+    }
+}
+
+function solve(id) {
+    const ex = exercises.find(e => e.id === id);
+    const container = document.getElementById(`ex-${id}`);
+    if (ex.type === 'select') {
+        const s = container.querySelector('select');
+        s.value = ex.answer; s.className = 'state-correct';
+    } else if (ex.type === 'radio') {
+        ex.options.forEach(o => {
+            const label = document.getElementById(`label-${id}-${o}`);
+            label.className = 'radio-option' + (o === ex.answer ? ' correct' : '');
+            if (o === ex.answer) container.querySelector(`input[value="${o}"]`).checked = true;
+        });
+    } else if (ex.type === 'drag') {
+        ex.zones.forEach((z, i) => {
+            const dz = document.getElementById(`dz-${id}-${i}`);
+            dz.innerText = z.a;
+            dz.className = 'dropzone state-correct';
+        });
+    }
+}
+
+render();
+</script>
+
+</body>
+</html>
