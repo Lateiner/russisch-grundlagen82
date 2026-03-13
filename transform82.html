@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transformation: Russische Possessiv-Adjektive</title>
+    
+    <!-- DragDropTouch Polyfill -->
+    <script src="https://cdn.jsdelivr.net/npm/drag-drop-touch@1.3.1/DragDropTouch.js"></script>
+
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-bg: #d4edda;
+            --success-text: #155724;
+            --error-bg: #f8d7da;
+            --error-text: #721c24;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --border-color: #ced4da;
+        }
+
+        body {
+            font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: #333;
+            line-height: 1.6;
+            margin: 0;
+            padding: 10px;
+            font-style: normal;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        h1, h2 { 
+            color: var(--primary-color); 
+            text-align: center; 
+            margin-bottom: 10px;
+            font-style: normal;
+        }
+        
+        .intro {
+            background: #e9ecef;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border-left: 6px solid var(--secondary-color);
+        }
+
+        .task-card {
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 25px;
+            background: #fff;
+        }
+
+        .nom-sentence {
+            display: block;
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            border-left: 4px solid #adb5bd;
+            font-weight: 500;
+        }
+
+        .transform-instruction {
+            display: block;
+            margin-bottom: 15px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        /* Liste der Optionen */
+        .options-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .option-btn {
+            padding: 10px;
+            background: #fff;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .option-btn:hover {
+            border-color: var(--secondary-color);
+            background: #f0f7ff;
+        }
+
+        /* Feedback-Zustände */
+        .state-correct {
+            background-color: var(--success-bg) !important;
+            color: var(--success-text) !important;
+            border-color: var(--success-text) !important;
+        }
+
+        .state-incorrect {
+            background-color: var(--error-bg) !important;
+            color: var(--error-text) !important;
+            border-color: var(--error-text) !important;
+        }
+
+        /* Buttons */
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            border-top: 1px solid #eee;
+            padding-top: 15px;
+        }
+
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85em;
+            transition: 0.2s;
+        }
+
+        .btn-reset { background: #adb5bd; color: white; }
+        .btn-solution { background: var(--secondary-color); color: white; }
+        button:hover { opacity: 0.85; }
+
+        @media (max-width: 600px) {
+            .container { padding: 15px; }
+            .options-list { grid-template-columns: 1fr; }
+            .btn-group { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Russisch-Assistent</h1>
+    <h2>Transformation: Sätze in andere Fälle setzen</h2>
+
+    <div class="intro">
+        <p>Lies den Satz im Nominativ. Wähle dann die richtige Form des possessiven Adjektivs aus der Liste aus, um den Satz in den geforderten Fall zu transformieren.</p>
+    </div>
+
+    <div id="exercise-list"></div>
+</div>
+
+<script>
+const exercises = [
+    { 
+        id: 1, 
+        nom: "Это собачий дом.", 
+        target: "Я не вижу ... дома. (Genitiv)", 
+        options: ["собачьего", "собачьему", "собачьим"], 
+        answer: "собачьего" 
+    },
+    { 
+        id: 2, 
+        nom: "Это лисья нора.", 
+        target: "Мы подошли к ... норе. (Dativ)", 
+        options: ["лисьей", "лисью", "лисьих"], 
+        answer: "лисьей" 
+    },
+    { 
+        id: 3, 
+        nom: "Это медвежье ухо.", 
+        target: "Он говорит о ... ухе. (Präpositiv)", 
+        options: ["медвежьем", "медвежьим", "медвежьего"], 
+        answer: "медвежьем" 
+    },
+    { 
+        id: 4, 
+        nom: "Это птичьи гнезда.", 
+        target: "В лесу много ... гнёзд. (Genitiv Plural)", 
+        options: ["птичьих", "птичьим", "птичьими"], 
+        answer: "птичьих" 
+    },
+    { 
+        id: 5, 
+        nom: "Это кошачий корм.", 
+        target: "Я купил ... корм. (Akkusativ unbelebt)", 
+        options: ["кошачий", "кошачьего", "кошачьим"], 
+        answer: "кошачий" 
+    },
+    { 
+        id: 6, 
+        nom: "Это собачий друг.", 
+        target: "Я вижу ... друга. (Akkusativ belebt)", 
+        options: ["собачьего", "собачий", "собачьему"], 
+        answer: "собачьего" 
+    },
+    { 
+        id: 7, 
+        nom: "Это рыбья голова.", 
+        target: "Суп из ... головы. (Genitiv)", 
+        options: ["рыбьей", "рыбью", "рыбьих"], 
+        answer: "рыбьей" 
+    },
+    { 
+        id: 8, 
+        nom: "Это собачье лакомство.", 
+        target: "Я стою рядом с ... лакомством. (Instrumental)", 
+        options: ["собачьим", "собачьем", "собачьего"], 
+        answer: "собачьим" 
+    },
+    { 
+        id: 9, 
+        nom: "Это лисьи уши.", 
+        target: "Я удивляюсь ... ушам. (Dativ Plural)", 
+        options: ["лисьим", "лисьих", "лисьими"], 
+        answer: "лисьим" 
+    },
+    { 
+        id: 10, 
+        nom: "Это волчий след.", 
+        target: "Мы идём по ... следу. (Dativ)", 
+        options: ["волчьему", "волчьего", "волчьим"], 
+        answer: "волчьему" 
+    },
+    { 
+        id: 11, 
+        nom: "Это птичья песня.", 
+        target: "Я наслаждаюсь ... песней. (Instrumental)", 
+        options: ["птичьей", "птичью", "птичьих"], 
+        answer: "птичьей" 
+    },
+    { 
+        id: 12, 
+        nom: "Это медвежьи когти.", 
+        target: "Она боится ... когтей. (Genitiv Plural)", 
+        options: ["медвежьих", "медвежьими", "медвежьим"], 
+        answer: "медвежьих" 
+    },
+    { 
+        id: 13, 
+        nom: "Это собачья миска.", 
+        target: "Еда лежит в ... миске. (Präpositiv)", 
+        options: ["собачьей", "собачью", "собачьих"], 
+        answer: "собачьей" 
+    },
+    { 
+        id: 14, 
+        nom: "Это лисья хитрость.", 
+        target: "Все знают о ... хитрости. (Präpositiv)", 
+        options: ["лисьей", "лисью", "лисья"], 
+        answer: "лисьей" 
+    },
+    { 
+        id: 15, 
+        nom: "Это кошачьи лапы.", 
+        target: "Я любуюсь ... лапами. (Instrumental Plural)", 
+        options: ["кошачьими", "кошачьих", "кошачьим"], 
+        answer: "кошачьими" 
+    },
+    { 
+        id: 16, 
+        nom: "Это медвежий сын.", 
+        target: "Мы увидели ... сына. (Akkusativ belebt)", 
+        options: ["медвежьего", "медвежий", "медвежьему"], 
+        answer: "медвежьего" 
+    },
+    { 
+        id: 17, 
+        nom: "Это птичье перо.", 
+        target: "У него нет ... пера. (Genitiv)", 
+        options: ["птичьего", "птичьему", "птичьим"], 
+        answer: "птичьего" 
+    },
+    { 
+        id: 18, 
+        nom: "Это волчья стая.", 
+        target: "Мы подошли к ... стае. (Dativ)", 
+        options: ["волчьей", "волчью", "волчьих"], 
+        answer: "волчьей" 
+    },
+    { 
+        id: 19, 
+        nom: "Это кошачья еда.", 
+        target: "Я вижу ... еду. (Akkusativ)", 
+        options: ["кошачью", "кошачьей", "кошачья"], 
+        answer: "кошачью" 
+    },
+    { 
+        id: 20, 
+        nom: "Это лисий совет.", 
+        target: "Он последовал ... совету. (Dativ)", 
+        options: ["лисьему", "лисьего", "лисьим"], 
+        answer: "лисьему" 
+    }
+];
+
+const list = document.getElementById('exercise-list');
+
+function shuffle(array) {
+    return array.sort(() => Math.random() - 0.5);
+}
+
+function render() {
+    exercises.forEach((ex, idx) => {
+        const div = document.createElement('div');
+        div.className = 'task-card';
+        div.id = `ex-${ex.id}`;
+
+        const shuffledOptions = shuffle([...ex.options]);
+
+        div.innerHTML = `
+            <span class="nom-sentence">Nominativ: ${ex.nom}</span>
+            <span class="transform-instruction">Transformation: ${ex.target}</span>
+            <div class="options-list" id="opt-container-${ex.id}">
+                ${shuffledOptions.map(opt => `
+                    <div class="option-btn" onclick="checkAnswer(${ex.id}, '${opt}', this)">${opt}</div>
+                `).join('')}
+            </div>
+            <div class="btn-group">
+                <button class="btn-reset" onclick="resetTask(${ex.id})">Zurücksetzen</button>
+                <button class="btn-solution" onclick="solveTask(${ex.id})">Lösung anzeigen</button>
+            </div>
+        `;
+        list.appendChild(div);
+    });
+}
+
+window.checkAnswer = function(id, selected, el) {
+    const ex = exercises.find(e => e.id === id);
+    const container = document.getElementById(`opt-container-${id}`);
+    const buttons = container.querySelectorAll('.option-btn');
+    
+    // Reset selection for this task
+    buttons.forEach(btn => btn.className = 'option-btn');
+
+    if (selected === ex.answer) {
+        el.classList.add('state-correct');
+    } else {
+        el.classList.add('state-incorrect');
+    }
+};
+
+window.resetTask = function(id) {
+    const container = document.getElementById(`opt-container-${id}`);
+    const buttons = container.querySelectorAll('.option-btn');
+    buttons.forEach(btn => btn.className = 'option-btn');
+};
+
+window.solveTask = function(id) {
+    const ex = exercises.find(e => e.id === id);
+    const container = document.getElementById(`opt-container-${id}`);
+    const buttons = container.querySelectorAll('.option-btn');
+    
+    buttons.forEach(btn => {
+        if (btn.innerText === ex.answer) {
+            btn.className = 'option-btn state-correct';
+        } else {
+            btn.className = 'option-btn';
+        }
+    });
+};
+
+render();
+</script>
+
+</body>
+</html>
