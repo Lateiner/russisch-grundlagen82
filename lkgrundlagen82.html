@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lernkartei: Possessiv-Adjektive & Vokabeln</title>
+    <style>
+        :root {
+            --primary-green: #2ecc71;
+            --dark-green: #27ae60;
+            --bg-color: #f0f4f1;
+            --card-front-bg: #ffffff;
+            --card-back-bg: #e8f5e9;
+            --text-color: #2c3e50;
+            --shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+        }
+
+        h1 {
+            color: var(--dark-green);
+            margin-bottom: 10px;
+            font-size: 1.8rem;
+        }
+
+        .progress {
+            margin-bottom: 20px;
+            font-weight: bold;
+            color: var(--dark-green);
+            font-size: 1.1rem;
+        }
+
+        /* Flashcard 3D Flip */
+        .card-container {
+            perspective: 1000px;
+            width: 100%;
+            height: 350px;
+            cursor: pointer;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .card.is-flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 20px;
+            padding: 20px;
+            box-sizing: border-box;
+            border: 4px solid var(--primary-green);
+        }
+
+        .card-front {
+            background-color: var(--card-front-bg);
+        }
+
+        .card-back {
+            background-color: var(--card-back-bg);
+            transform: rotateY(180deg);
+        }
+
+        .card-text {
+            font-size: 2.5rem;
+            font-weight: bold;
+            word-wrap: break-word;
+            max-width: 100%;
+            text-align: center;
+        }
+
+        .label {
+            font-size: 0.8rem;
+            color: #7f8c8d;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+            position: absolute;
+            top: 20px;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        button {
+            background-color: var(--primary-green);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.1s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        button:hover {
+            background-color: var(--dark-green);
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        button:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+
+        .secondary-btns {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .btn-small {
+            background-color: #61bc84;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 480px) {
+            .card-text { font-size: 1.8rem; }
+            .card-container { height: 280px; }
+            button { padding: 10px 15px; font-size: 0.9rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Vokabeltrainer</h1>
+        <div class="progress" id="progress">1 / 40</div>
+
+        <div class="card-container" id="card-trigger">
+            <div class="card" id="card-inner">
+                <div class="card-face card-front">
+                    <div class="label">Russisch</div>
+                    <div class="card-text" id="front-text">Загрузка...</div>
+                </div>
+                <div class="card-face card-back">
+                    <div class="label">Deutsch</div>
+                    <div class="card-text" id="back-text">Laden...</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button id="prev-btn">← Vorherige</button>
+            <button id="next-btn">Nächste →</button>
+        </div>
+
+        <div class="secondary-btns">
+            <button id="shuffle-btn" class="btn-small">🔀 Mischen</button>
+            <button id="start-btn" class="btn-small">🏠 An den Anfang</button>
+        </div>
+    </div>
+
+    <script>
+        // Vokabeldaten
+        const vocabList = [
+            {ru: "соба́чий", de: "Hunde-"},
+            {ru: "ли́сий", de: "Fuchs-"},
+            {ru: "медве́жий", de: "Bären-"},
+            {ru: "пти́чий", de: "Vogel-"},
+            {ru: "во́лчий", de: "Wolfs-"},
+            {ru: "коша́чий", de: "Katzen-"},
+            {ru: "ры́бий", de: "Fisch-"},
+            {ru: "дом", de: "Haus"},
+            {ru: "бу́дка", de: "Hütte / Hundehütte"},
+            {ru: "хвост", de: "Schwanz"},
+            {ru: "нора́", de: "Bau / Höhle"},
+            {ru: "берло́га", de: "Bärenhöhle"},
+            {ru: "след", de: "Spur"},
+            {ru: "гнездо́", de: "Nest"},
+            {ru: "оше́йник", de: "Halsband"},
+            {ru: "хозя́ин", de: "Besitzer / Herrchen"},
+            {ru: "перо́", de: "Feder"},
+            {ru: "пре́данность", de: "Ergebenheit / Treue"},
+            {ru: "ве́рность", de: "Treue"},
+            {ru: "ми́ска", de: "Napf"},
+            {ru: "ла́комство", de: "Leckerli / Leckerbissen"},
+            {ru: "ко́готь", de: "Kralle"},
+            {ru: "ла́па", de: "Pfote"},
+            {ru: "птене́ц", de: "Küken / Jungvogel"},
+            {ru: "хи́трость", de: "List / Schlauheit"},
+            {ru: "ста́я", de: "Rudel / Schwarm"},
+            {ru: "у́хо", de: "Ohr"},
+            {ru: "глаз", de: "Auge"},
+            {ru: "ви́деть / уви́деть", de: "sehen"},
+            {ru: "подходи́ть / подойти́", de: "herangehen / sich nähern"},
+            {ru: "говори́ть / сказа́ть", de: "sprechen / sagen"},
+            {ru: "иска́ть / поиска́ть", de: "suchen"},
+            {ru: "любова́ться / полюбова́ться", de: "bewundern"},
+            {ru: "корми́ть / покорми́ть", de: "füttern"},
+            {ru: "находи́ть / найти́", de: "finden"},
+            {ru: "ра́доваться / обра́доваться", de: "sich freuen"},
+            {ru: "понима́ть / поня́ть", de: "verstehen"},
+            {ru: "склоня́ть / просклоня́ть", de: "deklinieren"},
+            {ru: "изменя́ть / измени́ть", de: "ändern / verändern"},
+            {ru: "испо́льзовать / воспо́льзоваться", de: "verwenden / benutzen"}
+        ];
+
+        let currentDeck = [...vocabList];
+        let index = 0;
+
+        const cardInner = document.getElementById('card-inner');
+        const frontText = document.getElementById('front-text');
+        const backText = document.getElementById('back-text');
+        const progressText = document.getElementById('progress');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const shuffleBtn = document.getElementById('shuffle-btn');
+        const startBtn = document.getElementById('start-btn');
+        const cardTrigger = document.getElementById('card-trigger');
+
+        // Funktion zum Aktualisieren der Karte
+        function updateCard() {
+            cardInner.classList.remove('is-flipped');
+            
+            setTimeout(() => {
+                const card = currentDeck[index];
+                frontText.innerText = card.ru;
+                backText.innerText = card.de;
+                
+                // Dynamische Schriftgröße
+                adjustFontSize(frontText, card.ru);
+                adjustFontSize(backText, card.de);
+
+                progressText.innerText = `${index + 1} / ${currentDeck.length}`;
+                
+                // Button-States
+                prevBtn.disabled = index === 0;
+                nextBtn.disabled = index === currentDeck.length - 1;
+            }, 150);
+        }
+
+        function adjustFontSize(element, text) {
+            if (text.length > 25) {
+                element.style.fontSize = "1.3rem";
+            } else if (text.length > 15) {
+                element.style.fontSize = "1.8rem";
+            } else {
+                element.style.fontSize = "2.5rem";
+            }
+        }
+
+        function flipCard() {
+            cardInner.classList.toggle('is-flipped');
+        }
+
+        function nextCard() {
+            if (index < currentDeck.length - 1) {
+                index++;
+                updateCard();
+            }
+        }
+
+        function prevCard() {
+            if (index > 0) {
+                index--;
+                updateCard();
+            }
+        }
+
+        function shuffleDeck() {
+            for (let i = currentDeck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [currentDeck[i], currentDeck[j]] = [currentDeck[j], currentDeck[i]];
+            }
+            index = 0;
+            updateCard();
+        }
+
+        function goToStart() {
+            index = 0;
+            updateCard();
+        }
+
+        // Event Listener
+        cardTrigger.addEventListener('click', flipCard);
+        nextBtn.addEventListener('click', nextCard);
+        prevBtn.addEventListener('click', prevCard);
+        shuffleBtn.addEventListener('click', shuffleDeck);
+        startBtn.addEventListener('click', goToStart);
+
+        // Tastatursteuerung
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' || e.key === 'Enter') {
+                e.preventDefault(); // Verhindert Scrollen bei Leertaste
+                flipCard();
+            } else if (e.key === 'ArrowRight') {
+                nextCard();
+            } else if (e.key === 'ArrowLeft') {
+                prevCard();
+            } else if (e.key === 'Home') {
+                goToStart();
+            }
+        });
+
+        // Initialisierung
+        updateCard();
+
+    </script>
+</body>
+</html>
