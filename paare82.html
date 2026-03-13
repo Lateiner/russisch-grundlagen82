@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory: Russische Possessiv-Adjektive</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/drag-drop-touch@1.3.1/DragDropTouch.js"></script>
+
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #27ae60;
+            --error-color: #e74c3c;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: #333;
+            line-height: 1.6;
+            margin: 0;
+            padding: 10px;
+            font-style: normal !important; /* Deaktiviert Kursivschrift global */
+        }
+
+        * {
+            font-style: normal !important;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        h1, h2 { color: var(--primary-color); text-align: center; margin-bottom: 10px; }
+        
+        .intro {
+            background: #e9ecef;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border-left: 6px solid var(--secondary-color);
+        }
+
+        /* Memory Grid */
+        .memory-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 30px;
+            min-height: 450px; /* Verhindert Springen des Layouts */
+        }
+
+        .memory-card {
+            background: #fff;
+            border: 2px solid var(--secondary-color);
+            border-radius: 8px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95em;
+            transition: all 0.4s ease;
+            user-select: none;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        /* Zustand: Ausgewählt */
+        .selected {
+            background-color: var(--secondary-color) !important;
+            color: white !important;
+        }
+
+        /* Zustand: Falsch */
+        .wrong {
+            background-color: var(--error-color) !important;
+            color: white !important;
+            border-color: var(--error-color) !important;
+        }
+
+        /* Zustand: Gefunden (Verschwinden) */
+        .matched {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transform: scale(0.8);
+        }
+
+        /* Zustand: Lösung (Wieder eingeblendet mit Farben) */
+        .solution-mode {
+            opacity: 1 !important;
+            visibility: visible !important;
+            cursor: default !important;
+            transform: scale(1) !important;
+            border-width: 3px !important;
+            color: #000 !important;
+        }
+
+        /* Buttons */
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1em;
+            transition: background 0.2s;
+        }
+
+        .btn-reset { background: #6c757d; color: white; }
+        .btn-solution { background: var(--primary-color); color: white; }
+        button:hover { opacity: 0.85; }
+
+        @media (max-width: 768px) {
+            .memory-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+
+        @media (max-width: 480px) {
+            .memory-grid { grid-template-columns: repeat(2, 1fr); }
+            .memory-card { height: 90px; font-size: 0.85em; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Russisch-Assistent</h1>
+    <h2>Paare finden: Possessiv-Adjektive</h2>
+
+    <div class="intro">
+        <p>Finden Sie die Paare (Grammatikformen oder Übersetzungen). Korrekt gefundene Paare <strong>verschwinden</strong> vom Feld.</p>
+    </div>
+
+    <div class="memory-grid" id="grid">
+        <!-- Karten werden per JS generiert -->
+    </div>
+
+    <div class="btn-group">
+        <button class="btn-reset" onclick="initGame()">Neustart</button>
+        <button class="btn-solution" onclick="showAllSolutions()">Lösungen anzeigen</button>
+    </div>
+</div>
+
+<script>
+// 10 Paare = 20 Karten
+const pairDefinitions = [
+    { a: "лисий (Nom.)", b: "лисьим (Inst.)" },
+    { a: "собачья (Nom. f.)", b: "собачьей (Gen. f.)" },
+    { a: "птичье (Nom. n.)", b: "птичьем (Präp. n.)" },
+    { a: "волчьи (Nom. pl.)", b: "волчьих (Gen. pl.)" },
+    { a: "рыбья голова", b: "Fischkopf" },
+    { a: "кошачий глаз", b: "Katzenauge" },
+    { a: "медвежья берлога", b: "Bärenhöhle" },
+    { a: "лисью нору (Akk.)", b: "Fuchshöhle (Akk.)" },
+    { a: "собачьему хозяину", b: "Hundebesitzer (Dat.)" },
+    { a: "птичьими перьями", b: "Vogelfedern (Inst.)" }
+];
+
+let selectedCards = [];
+let lockBoard = false;
+let cards = [];
+
+function initGame() {
+    const grid = document.getElementById('grid');
+    grid.innerHTML = '';
+    selectedCards = [];
+    lockBoard = false;
+    cards = [];
+
+    // Daten für 20 Karten vorbereiten
+    let cardData = [];
+    pairDefinitions.forEach((p, index) => {
+        cardData.push({ text: p.a, pairId: index });
+        cardData.push({ text: p.b, pairId: index });
+    });
+
+    // Mischen
+    cardData.sort(() => Math.random() - 0.5);
+
+    // Karten erstellen
+    cardData.forEach(data => {
+        const card = document.createElement('div');
+        card.className = 'memory-card';
+        card.innerText = data.text;
+        card.dataset.pairId = data.pairId;
+        card.onclick = () => handleCardClick(card);
+        grid.appendChild(card);
+        cards.push(card);
+    });
+}
+
+function handleCardClick(card) {
+    if (lockBoard || card.classList.contains('matched') || card.classList.contains('selected')) return;
+
+    card.classList.add('selected');
+    selectedCards.push(card);
+
+    if (selectedCards.length === 2) {
+        checkMatch();
+    }
+}
+
+function checkMatch() {
+    lockBoard = true;
+    const [card1, card2] = selectedCards;
+
+    if (card1.dataset.pairId === card2.dataset.pairId) {
+        // Erfolg: Kurz anzeigen, dann verschwinden lassen
+        setTimeout(() => {
+            card1.classList.replace('selected', 'matched');
+            card2.classList.replace('selected', 'matched');
+            selectedCards = [];
+            lockBoard = false;
+        }, 500);
+    } else {
+        // Fehler: Rot markieren, dann zurücksetzen
+        card1.classList.add('wrong');
+        card2.classList.add('wrong');
+        setTimeout(() => {
+            card1.classList.remove('selected', 'wrong');
+            card2.classList.remove('selected', 'wrong');
+            selectedCards = [];
+            lockBoard = false;
+        }, 1000);
+    }
+}
+
+function showAllSolutions() {
+    lockBoard = true;
+    cards.forEach(card => {
+        const pId = card.dataset.pairId;
+        // Farbe basierend auf PairID generieren (HSL für gute Unterscheidbarkeit)
+        const hue = (pId * 36) % 360; 
+        card.classList.add('solution-mode');
+        card.style.backgroundColor = `hsl(${hue}, 80%, 90%)`;
+        card.style.borderColor = `hsl(${hue}, 70%, 50%)`;
+    });
+}
+
+// Initialer Start
+initGame();
+</script>
+
+</body>
+</html>
