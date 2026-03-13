@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabellen-Übung: Russische Possessiv-Adjektive</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/drag-drop-touch@1.3.1/DragDropTouch.js"></script>
+
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-bg: #d4edda;
+            --success-text: #155724;
+            --error-bg: #f8d7da;
+            --error-text: #721c24;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --border-color: #dee2e6;
+        }
+
+        body {
+            font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: #333;
+            line-height: 1.6;
+            margin: 0;
+            padding: 10px;
+            font-style: normal !important;
+        }
+
+        /* Kursivschrift global deaktivieren */
+        * {
+            font-style: normal !important;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        h1, h2 { color: var(--primary-color); text-align: center; margin-bottom: 10px; }
+        
+        .intro {
+            background: #e9ecef;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border-left: 6px solid var(--secondary-color);
+        }
+
+        /* Responsive Tabellen-Container */
+        .table-responsive {
+            overflow-x: auto;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #fff;
+            min-width: 600px; /* Garantiert Lesbarkeit auf Mobile durch Scrollen */
+        }
+
+        th, td {
+            border: 1px solid var(--border-color);
+            padding: 12px 8px;
+            text-align: center;
+        }
+
+        th {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 600;
+        }
+
+        .case-col {
+            background-color: #f8f9fa;
+            font-weight: bold;
+            text-align: left;
+            width: 120px;
+        }
+
+        /* Dropdown Styling in der Tabelle */
+        select {
+            width: 100%;
+            padding: 6px;
+            border-radius: 4px;
+            border: 2px solid var(--border-color);
+            background-color: #fff;
+            font-family: inherit;
+            font-size: 0.95em;
+            cursor: pointer;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        /* Feedback-Zustände */
+        .state-correct {
+            background-color: var(--success-bg) !important;
+            color: var(--success-text) !important;
+            border-color: var(--success-text) !important;
+        }
+
+        .state-incorrect {
+            background-color: var(--error-bg) !important;
+            color: var(--error-text) !important;
+            border-color: var(--error-text) !important;
+        }
+
+        .static-text {
+            color: #555;
+            font-weight: 500;
+        }
+
+        /* Buttons */
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1em;
+            transition: background 0.2s;
+        }
+
+        .btn-reset { background: #6c757d; color: white; }
+        .btn-solution { background: var(--secondary-color); color: white; }
+        button:hover { opacity: 0.85; }
+
+        @media (max-width: 600px) {
+            .container { padding: 15px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Russisch-Assistent</h1>
+    <h2>Interaktive Tabelle: Possessiv-Adjektiv „собачий“</h2>
+
+    <div class="intro">
+        <p>Vervollständigen Sie die Deklinations-Tabelle. Wählen Sie für die leeren Zellen die korrekte Form aus. Achten Sie auf das Stamm-Weichheitszeichen <strong>Ь</strong>!</p>
+    </div>
+
+    <div class="table-responsive">
+        <table id="declination-table">
+            <thead>
+                <tr>
+                    <th>Fall</th>
+                    <th>Maskulin</th>
+                    <th>Neutrum</th>
+                    <th>Feminin</th>
+                    <th>Plural</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Nominativ -->
+                <tr>
+                    <td class="case-col">Nominativ</td>
+                    <td><span class="static-text">собачий</span></td>
+                    <td>
+                        <select data-answer="собачье" onchange="checkCell(this)">
+                            <option value="">-- ? --</option>
+                            <option value="собачье">собачье</option>
+                            <option value="собачьё">собачьё</option>
+                            <option value="собачее">собачее</option>
+                        </select>
+                    </td>
+                    <td><span class="static-text">собачья</span></td>
+                    <td>
+                        <select data-answer="собачьи" onchange="checkCell(this)">
+                            <option value="">-- ? --</option>
+                            <option value="собачи">собачи</option>
+                            <option value="собачьи">собачьи</option>
+                            <option value="собачье">собачье</option>
+                        </select>
+                    </td>
+                </tr>
+                <!-- Genitiv -->
+                <tr>
+                    <td class="case-col">Genitiv</td>
+                    <td colspan="2">
+                        <select data-answer="собачьего" onchange="checkCell(this)">
+                            <option value="">-- ? --</option>
+                            <option value="собачьего">собачьего</option>
+                            <option value="собачего">собачего</option>
+                            <option value="собачьево">собачьево</option>
+                        </select>
+                    </td>
+                    <td><span class="static-text">собачьей</span></td>
+                    <td>
+                        <select data-answer="собачьих" onchange="checkCell(this)">
+                            <option value="">-- ? --</option>
+                            <option value="собачих">собачих</option>
+                            <option value="собачьих">собачьих</option>
+                            <option value="собачьим">собачьим</option>
+                        </select>
+                    </td>
+                </tr>
+                <!-- Dativ -->
+                <tr>
+                    <td class="case-col">Dativ</td>
+                    <td colspan="2">
+                        <select data-answer="собачьему" onchange="checkCell(this)">
+                            <option value="">-- ? --</option>
+                            <option value="собачему">собачему</option>
+                            <option value="собачьему">собачьему</option>
+                            <option value="собачьим">собачьим</option>
+                        </select>
+                    </td>
+                    <td>
+                        <select data-answer="собачьей" onchange="checkCell(this)">
+                            <option value="">-- ? --</option>
+                            <option value="собачью">собачью</option>
+                            <option value="собачьей">собачьей</option>
+                            <option value="собачья">собачья</option>
+                        </select>
+                    </td>
+                    <td><span class="static-text">собачьим</span></td>
+                </tr>
+                <!-- Akkusativ -->
+                <tr>
+                    <td class="case-col">Akkusativ</td>
+                    <td><span class="static-text">Nom. / Gen.</span></td>
+                    <td>
+                        <select data-answer="собачье" onchange="checkCell(this)">
+                            <option value="">-- ? --</option>
+                            <option value="собачье">собачье</option>
+                            <option value="собачьего">собачьего</option>
+                            <option value="собачий">собачий</option>
+                        </select>
+                    </td>
+                    <td>
+                        <select data-answer="собачью" onchange="checkCell(this)">
+                            <option value="">-- ? --</option>
+                            <option value="собачю">собачю</option>
+                            <option value="собачью">собачью</option>
+                            <option value="собачьей">собачьей</option>
+                        </select>
+                    </td>
+                    <td><span class="static-text">Nom. / Gen.</span></td>
+                </tr>
+                <!-- Instrumental -->
+                <tr>
+                    <td class="case-col">Instrumental</td>
+                    <td colspan="2"><span class="static-text">собачьим</span></td>
+                    <td>
+                        <select data-answer="собачьей" onchange="checkCell(this)">
+                            <option value="">-- ? --</option>
+                            <option value="собачью">собачью</option>
+                            <option value="собачьей">собачьей</option>
+                            <option value="собачьею">собачьею</option>
+                        </select>
+                    </td>
+                    <td>
+                        <select data-answer="собачьими" onchange="checkCell(this)">
+                            <option value="">-- ? --</option>
+                            <option value="собачьими">собачьими</option>
+                            <option value="собачими">собачими</option>
+                            <option value="собачьих">собачьих</option>
+                        </select>
+                    </td>
+                </tr>
+                <!-- Präpositiv -->
+                <tr>
+                    <td class="case-col">Präpositiv</td>
+                    <td colspan="2">
+                        <select data-answer="собачьем" onchange="checkCell(this)">
+                            <option value="">-- ? --</option>
+                            <option value="собачем">собачем</option>
+                            <option value="собачьем">собачьем</option>
+                            <option value="собачьим">собачьим</option>
+                        </select>
+                    </td>
+                    <td>
+                        <select data-answer="собачьей" onchange="checkCell(this)">
+                            <option value="">-- ? --</option>
+                            <option value="собачьей">собачьей</option>
+                            <option value="собачье">собачьe</option>
+                            <option value="собачьих">собачьих</option>
+                        </select>
+                    </td>
+                    <td><span class="static-text">собачьих</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="btn-group">
+        <button class="btn-reset" onclick="resetTable()">Tabelle zurücksetzen</button>
+        <button class="btn-solution" onclick="showSolutions()">Lösungen anzeigen</button>
+    </div>
+</div>
+
+<script>
+    function checkCell(select) {
+        if (select.value === "") {
+            select.className = "";
+            return;
+        }
+        
+        if (select.value === select.dataset.answer) {
+            select.className = "state-correct";
+        } else {
+            select.className = "state-incorrect";
+        }
+    }
+
+    function resetTable() {
+        const selects = document.querySelectorAll('select');
+        selects.forEach(select => {
+            select.value = "";
+            select.className = "";
+        });
+    }
+
+    function showSolutions() {
+        const selects = document.querySelectorAll('select');
+        selects.forEach(select => {
+            select.value = select.dataset.answer;
+            select.className = "state-correct";
+        });
+    }
+</script>
+
+</body>
+</html>
