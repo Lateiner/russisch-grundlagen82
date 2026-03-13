@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interaktive Übung: Satzbau & Kongruenz</title>
+    
+    <!-- DragDropTouch Polyfill für Touch-Geräte -->
+    <script src="https://cdn.jsdelivr.net/npm/drag-drop-touch@1.3.1/DragDropTouch.js"></script>
+
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-bg: #d4edda;
+            --success-text: #155724;
+            --error-bg: #f8d7da;
+            --error-text: #721c24;
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --border-color: #ced4da;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: #333;
+            line-height: 1.6;
+            margin: 0;
+            padding: 10px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        h1, h2 { color: var(--primary-color); text-align: center; margin-bottom: 10px; }
+        
+        .intro {
+            background: #e9ecef;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border-left: 6px solid var(--secondary-color);
+        }
+
+        .task-card {
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 25px;
+            background: #fff;
+        }
+
+        .sentence-container {
+            font-size: 1.15em;
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Drag and Drop Styles */
+        .drag-pool {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            padding: 15px;
+            background: #f1f3f5;
+            border-radius: 8px;
+            min-height: 50px;
+        }
+
+        .draggable {
+            padding: 6px 14px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 4px;
+            cursor: grab;
+            user-select: none;
+            font-size: 0.95em;
+            font-weight: 500;
+        }
+
+        .draggable:active { cursor: grabbing; }
+
+        .dropzone {
+            display: inline-block;
+            min-width: 140px;
+            height: 36px;
+            border: 2px dashed var(--secondary-color);
+            border-radius: 6px;
+            text-align: center;
+            vertical-align: middle;
+            background: #fff;
+            transition: all 0.3s ease;
+            padding: 2px 8px;
+            line-height: 32px;
+            font-weight: bold;
+        }
+
+        /* Feedback States */
+        .state-correct {
+            background-color: var(--success-bg) !important;
+            color: var(--success-text) !important;
+            border: 2px solid var(--success-text) !important;
+        }
+
+        .state-incorrect {
+            background-color: var(--error-bg) !important;
+            color: var(--error-text) !important;
+            border: 2px solid var(--error-text) !important;
+        }
+
+        /* Buttons */
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85em;
+            transition: 0.2s;
+        }
+
+        .btn-reset { background: #adb5bd; color: white; }
+        .btn-solution { background: var(--secondary-color); color: white; }
+        button:hover { opacity: 0.85; }
+
+        @media (max-width: 600px) {
+            .container { padding: 15px; }
+            .sentence-container { font-size: 1em; }
+            .btn-group { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Russisch-Sprachassistent</h1>
+    <h2>Drag-and-Drop: Satzbau & Kongruenz</h2>
+
+    <div class="intro">
+        <p>Ziehe die richtige Form des possessiven Adjektivs in die Lücke. Achte auf Geschlecht, Fall und Zahl des Substantivs!</p>
+    </div>
+
+    <div id="exercise-list"></div>
+</div>
+
+<script>
+const exercises = [
+    { id: 1, sentence: ["Это", "хвост."], options: ["собачий", "собачья", "собачье"], answer: "собачий" },
+    { id: 2, sentence: ["Это", "будка."], options: ["собачий", "собачья", "собачьи"], answer: "собачья" },
+    { id: 3, sentence: ["Я не вижу", "хвоста."], options: ["лисьего", "лисий", "лисьему"], answer: "лисьего" },
+    { id: 4, sentence: ["Мы подошли к", "берлоге."], options: ["медвежьей", "медвежья", "медвежью"], answer: "медвежьей" },
+    { id: 5, sentence: ["Охотник нашёл", "следы."], options: ["волчьи", "волчий", "волчьих"], answer: "волчьи" },
+    { id: 6, sentence: ["В", "гнезде лежали яйца."], options: ["птичьем", "птичьим", "птичье"], answer: "птичьем" },
+    { id: 7, sentence: ["Я вижу", "сына медведицы."], options: ["медвежьего", "медвежий", "медвежьим"], answer: "медвежьего" },
+    { id: 8, sentence: ["Рядом с", "домом стоит забор."], options: ["собачьим", "собачьем", "собачий"], answer: "собачьим" },
+    { id: 9, sentence: ["Суп из", "головы очень вкусный."], options: ["рыбьей", "рыбья", "рыбью"], answer: "рыбьей" },
+    { id: 10, sentence: ["Я ищу", "нору."], options: ["лисью", "лисья", "лисьей"], answer: "лисью" },
+    { id: 11, sentence: ["Он гордится", "преданностью."], options: ["собачьей", "собачью", "собачья"], answer: "собачьей" },
+    { id: 12, sentence: ["В доме нет", "игрушек."], options: ["собачьих", "собачьи", "собачьим"], answer: "собачьих" },
+    { id: 13, sentence: ["Кошка умывается", "лапой."], options: ["кошачьей", "кошачья", "кошачью"], answer: "кошачьей" },
+    { id: 14, sentence: ["Мы радуемся", "песням."], options: ["птичьим", "птичьих", "птичьи"], answer: "птичьим" },
+    { id: 15, sentence: ["Это", "лакомство."], options: ["собачье", "собачий", "собачья"], answer: "собачье" },
+    { id: 16, sentence: ["Она боится", "когтей."], options: ["медвежьих", "медвежьи", "медвежьим"], answer: "медвежьих" },
+    { id: 17, sentence: ["К", "миске подошёл кот."], options: ["собачьей", "собачью", "собачья"], answer: "собачьей" },
+    { id: 18, sentence: ["Я вижу", "уши."], options: ["лисьи", "лисьих", "лисьим"], answer: "лисьи" },
+    { id: 19, sentence: ["Расскажи о", "хитрости."], options: ["лисьей", "лисью", "лисья"], answer: "лисьей" },
+    { id: 20, sentence: ["Они любуются", "грацией."], options: ["кошачьей", "кошачья", "кошачью"], answer: "кошачьей" }
+];
+
+const list = document.getElementById('exercise-list');
+
+function shuffle(array) {
+    return array.sort(() => Math.random() - 0.5);
+}
+
+function render() {
+    exercises.forEach((ex, idx) => {
+        const div = document.createElement('div');
+        div.className = 'task-card';
+        div.id = `ex-${ex.id}`;
+
+        const mixedOptions = shuffle([...ex.options]);
+
+        div.innerHTML = `
+            <div class="drag-pool" id="pool-${ex.id}">
+                ${mixedOptions.map((opt, i) => `
+                    <div class="draggable" draggable="true" id="drag-${ex.id}-${i}" ondragstart="drag(event)">${opt}</div>
+                `).join('')}
+            </div>
+            <div class="sentence-container">
+                <span>${idx + 1}. ${ex.sentence[0]}</span>
+                <span class="dropzone" id="dz-${ex.id}" ondrop="drop(event, ${ex.id})" ondragover="allow(event)"></span>
+                <span>${ex.sentence[1] || ''}</span>
+            </div>
+            <div class="btn-group">
+                <button class="btn-reset" onclick="resetTask(${ex.id})">Zurücksetzen</button>
+                <button class="btn-solution" onclick="solveTask(${ex.id})">Lösung anzeigen</button>
+            </div>
+        `;
+        list.appendChild(div);
+    });
+}
+
+// Drag & Drop Logic
+function allow(ev) {
+    ev.preventDefault();
+}
+
+function drag(ev) {
+    ev.dataTransfer.setData("text", ev.target.innerText);
+    ev.dataTransfer.setData("sourceId", ev.target.parentElement.id);
+}
+
+function drop(ev, id) {
+    ev.preventDefault();
+    const data = ev.dataTransfer.getData("text");
+    const dz = document.getElementById(`dz-${id}`);
+    
+    dz.innerText = data;
+    const correct = exercises.find(e => e.id === id).answer;
+    
+    if (data === correct) {
+        dz.className = 'dropzone state-correct';
+    } else {
+        dz.className = 'dropzone state-incorrect';
+    }
+}
+
+// Button Logic
+function resetTask(id) {
+    const dz = document.getElementById(`dz-${id}`);
+    dz.innerText = '';
+    dz.className = 'dropzone';
+}
+
+function solveTask(id) {
+    const ex = exercises.find(e => e.id === id);
+    const dz = document.getElementById(`dz-${id}`);
+    dz.innerText = ex.answer;
+    dz.className = 'dropzone state-correct';
+}
+
+render();
+</script>
+
+</body>
+</html>
