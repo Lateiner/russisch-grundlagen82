@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Baukasten: Russische Possessiv-Adjektive</title>
+    
+    <!-- DragDropTouch Polyfill für Touch-Geräte -->
+    <script src="https://cdn.jsdelivr.net/npm/drag-drop-touch@1.3.1/DragDropTouch.js"></script>
+
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-bg: #d4edda;
+            --success-text: #155724;
+            --error-bg: #f8d7da;
+            --error-text: #721c24;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --border-color: #ced4da;
+        }
+
+        body {
+            font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: #333;
+            line-height: 1.6;
+            margin: 0;
+            padding: 10px;
+            font-style: normal; /* Sicherstellen, dass nichts kursiv ist */
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        h1, h2 { 
+            color: var(--primary-color); 
+            text-align: center; 
+            margin-bottom: 10px;
+            font-style: normal;
+        }
+        
+        .intro {
+            background: #e9ecef;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border-left: 6px solid var(--secondary-color);
+        }
+
+        .task-card {
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 25px;
+            background: #fff;
+        }
+
+        .context-hint {
+            display: block;
+            margin-bottom: 15px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        /* Baukasten Bereich */
+        .builder-row {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            margin-bottom: 20px;
+        }
+
+        .stem-part {
+            background: #f1f3f5;
+            padding: 10px 5px 10px 15px;
+            border: 2px solid var(--border-color);
+            border-right: none;
+            border-radius: 8px 0 0 8px;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .drop-target {
+            display: inline-block;
+            min-width: 100px;
+            height: 48px;
+            border: 2px solid var(--border-color);
+            border-radius: 0 8px 8px 0;
+            background: #fff;
+            text-align: left;
+            padding-left: 5px;
+            line-height: 44px;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: var(--secondary-color);
+            transition: all 0.2s;
+        }
+
+        /* Drag Elemente */
+        .options-pool {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            padding: 10px;
+            background: #fafafa;
+            border-radius: 6px;
+        }
+
+        .ending-box {
+            padding: 8px 16px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 4px;
+            cursor: grab;
+            user-select: none;
+            font-weight: bold;
+        }
+
+        .ending-box:active { cursor: grabbing; }
+
+        /* Feedback Zustände */
+        .state-correct {
+            background-color: var(--success-bg) !important;
+            color: var(--success-text) !important;
+            border-color: var(--success-text) !important;
+        }
+
+        .state-incorrect {
+            background-color: var(--error-bg) !important;
+            color: var(--error-text) !important;
+            border-color: var(--error-text) !important;
+        }
+
+        /* Buttons */
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85em;
+            transition: 0.2s;
+        }
+
+        .btn-reset { background: #adb5bd; color: white; }
+        .btn-solution { background: var(--secondary-color); color: white; }
+        button:hover { opacity: 0.85; }
+
+        @media (max-width: 600px) {
+            .container { padding: 15px; }
+            .builder-row { font-size: 0.9em; }
+            .btn-group { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Russisch-Assistent</h1>
+    <h2>Endungs-Baukasten: Stamm + Endung</h2>
+
+    <div class="intro">
+        <p>Ergänze das Adjektiv, indem du die richtige Endung aus dem Pool auf das weiße Feld hinter dem Stamm ziehst.</p>
+    </div>
+
+    <div id="exercise-list"></div>
+</div>
+
+<script>
+const exercises = [
+    { id: 1, context: "Satz: Это собачья будка. (Hundehütte - Nom. Fem.)", stem: "собачь-", options: ["ья", "ий", "ье", "ьи"], answer: "ья" },
+    { id: 2, context: "Satz: Я не вижу лисьего хвоста. (Fuchsschwanz - Gen. Mask.)", stem: "лись-", options: ["его", "ему", "им", "их"], answer: "его" },
+    { id: 3, context: "Satz: К медвежьей берлоге. (Bärenhöhle - Dat. Fem.)", stem: "медвежь-", options: ["ей", "ью", "ья", "их"], answer: "ей" },
+    { id: 4, context: "Satz: Я вижу птичье гнездо. (Vogelnest - Nom. Neut.)", stem: "птичь-", options: ["ье", "ья", "ий", "ьи"], answer: "ье" },
+    { id: 5, context: "Satz: Это волчьи следы. (Wolfsspuren - Nom. Plur.)", stem: "волчь-", options: ["и", "их", "им", "ья"], answer: "и" },
+    { id: 6, context: "Satz: Собачий ошейник. (Hundehalsband - Nom. Mask.)", stem: "собач-", options: ["ий", "ьего", "ьему", "ья"], answer: "ий" },
+    { id: 7, context: "Satz: В птичьем мире. (In der Vogelwelt - Präp. Mask.)", stem: "птичь-", options: ["ем", "им", "его", "ей"], answer: "ем" },
+    { id: 8, context: "Satz: Рядом с собачьим домом. (Neben dem Hundehaus - Inst. Mask.)", stem: "собачь-", options: ["им", "ем", "его", "их"], answer: "им" },
+    { id: 9, context: "Satz: Из рыбьей головы. (Vom Fischkopf - Gen. Fem.)", stem: "рыбь-", options: ["ей", "ью", "ья", "ьи"], answer: "ей" },
+    { id: 10, context: "Satz: Я вижу лисью нору. (Fuchsbau - Akk. Fem.)", stem: "лись-", options: ["ю", "я", "ей", "и"], answer: "ю" },
+    { id: 11, context: "Satz: К собачьему хозяину. (Zum Hundebesitzer - Dat. Mask.)", stem: "собачь-", options: ["ему", "его", "им", "ем"], answer: "ему" },
+    { id: 12, context: "Satz: Нет медвежьих когтей. (Keine Bärenkrallen - Gen. Plur.)", stem: "медвежь-", options: ["их", "им", "и", "ья"], answer: "их" },
+    { id: 13, context: "Satz: С кошачьей грацией. (Mit Katzengrazie - Inst. Fem.)", stem: "кошачь-", options: ["ей", "ью", "ья", "им"], answer: "ей" },
+    { id: 14, context: "Satz: Птичьим песням. (Vogelgesängen - Dat. Plur.)", stem: "птичь-", options: ["им", "их", "и", "ьи"], answer: "им" },
+    { id: 15, context: "Satz: О медвежьем поведении. (Über Bärenverhalten - Präp. Neut.)", stem: "медвежь-", options: ["ем", "им", "его", "их"], answer: "ем" },
+    { id: 16, context: "Satz: Я вижу собачьего друга. (Hundefreund - Akk. belebt Mask.)", stem: "собачь-", options: ["его", "ий", "ему", "им"], answer: "его" },
+    { id: 17, context: "Satz: Кошачье лакомство. (Katzenleckerli - Nom. Neut.)", stem: "кошачь-", options: ["ье", "ья", "ий", "ьи"], answer: "ье" },
+    { id: 18, context: "Satz: О лисьих хитростях. (Über Fuchslisten - Präp. Plur.)", stem: "лись-", options: ["их", "им", "ими", "и"], answer: "их" },
+    { id: 19, context: "Satz: С медвежьими лапами. (Mit Bärenpfoten - Inst. Plur.)", stem: "медвежь-", options: ["ими", "их", "им", "и"], answer: "ими" },
+    { id: 20, context: "Satz: Лисьи уши. (Fuchsohren - Nom. Plur.)", stem: "лись-", options: ["и", "их", "ю", "я"], answer: "и" }
+];
+
+const list = document.getElementById('exercise-list');
+
+function shuffle(array) {
+    return array.sort(() => Math.random() - 0.5);
+}
+
+function render() {
+    exercises.forEach((ex, idx) => {
+        const div = document.createElement('div');
+        div.className = 'task-card';
+        div.id = `ex-${ex.id}`;
+
+        const mixedOptions = shuffle([...ex.options]);
+
+        div.innerHTML = `
+            <span class="context-hint">${idx + 1}. ${ex.context}</span>
+            <div class="options-pool" id="pool-${ex.id}">
+                ${mixedOptions.map((opt, i) => `
+                    <div class="ending-box" draggable="true" id="drag-${ex.id}-${i}" ondragstart="drag(event)">${opt}</div>
+                `).join('')}
+            </div>
+            <div class="builder-row">
+                <div class="stem-part">${ex.stem}</div>
+                <div class="drop-target" id="dz-${ex.id}" ondrop="drop(event, ${ex.id})" ondragover="allow(event)"></div>
+            </div>
+            <div class="btn-group">
+                <button class="btn-reset" onclick="resetTask(${ex.id})">Zurücksetzen</button>
+                <button class="btn-solution" onclick="solveTask(${ex.id})">Lösung anzeigen</button>
+            </div>
+        `;
+        list.appendChild(div);
+    });
+}
+
+// Drag & Drop Funktionen
+function allow(ev) {
+    ev.preventDefault();
+}
+
+function drag(ev) {
+    ev.dataTransfer.setData("text", ev.target.innerText);
+}
+
+function drop(ev, id) {
+    ev.preventDefault();
+    const data = ev.dataTransfer.getData("text");
+    const dz = document.getElementById(`dz-${id}`);
+    
+    dz.innerText = data;
+    const correct = exercises.find(e => e.id === id).answer;
+    
+    if (data === correct) {
+        dz.className = 'drop-target state-correct';
+    } else {
+        dz.className = 'drop-target state-incorrect';
+    }
+}
+
+// Button Funktionen
+window.resetTask = function(id) {
+    const dz = document.getElementById(`dz-${id}`);
+    dz.innerText = '';
+    dz.className = 'drop-target';
+};
+
+window.solveTask = function(id) {
+    const ex = exercises.find(e => e.id === id);
+    const dz = document.getElementById(`dz-${id}`);
+    dz.innerText = ex.answer;
+    dz.className = 'drop-target state-correct';
+};
+
+render();
+</script>
+
+</body>
+</html>
